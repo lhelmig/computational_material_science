@@ -57,30 +57,51 @@ void visualizeState(vector<int> state){
         }
     }
 }
+/*
+checks if side i is at the left border
+Args: position of side i in the vector
+*/
 bool isLeftBorder(int i ){
     if(i%L==0){
         return true;
     }
     return false;
 }
+/*
+checks if side i is at the right border
+Args: position of side i in the vector
+*/
 bool isRightBorder(int i ){
     if((i+1)%L==0){
         return true;
     }
     return false;
 }
+/*
+checks if side i is at the upper border
+Args: position of side i in the vector
+*/
 bool isUpperBorder(int i){
     if(i<L){
         return true;
     }
     return false;
 }
+/*
+checks if side i is at the lower border
+Args: position of side i in the vector
+*/
 bool isLowerBorder(int i){
     if(L*(L-1)<=i && i<L*L){
         return true;
     }
     return false;
 }
+/*
+Determines the adjacent sides of a side i
+Args: Side i at position i in the vector
+Returns: indices of the four adjacent sides
+*/
 vector<int> adjacentSides(int i){
     
     vector<int> adjacents;
@@ -111,6 +132,11 @@ vector<int> adjacentSides(int i){
 
     return adjacents;
 }
+/*
+Calculate the energy of the system using the Hamilton function
+
+
+*/
 double calcEnergy(vector<int> state){
 
     for(int i = 0; i < state.size(); i++){
