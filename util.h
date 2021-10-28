@@ -7,6 +7,7 @@ namespace constants{
 
     const int L = 32;
     const double B=0;
+    const int J = 1;
 
 }
 
@@ -159,13 +160,23 @@ vector<float> getEigenvalues(vector<int> state){
 /*
 Calculate the energy of the system using the Hamilton function
 
+Energie: E= J 1/4 [m_si * m_sj + m_si * m_sk ......]
+hbar=1 ; 1/4 because of the factor in the operator s_z
+
+Args: state as a vector<int>
+Returns the Energie of the whole system
 
 */
 double calcEnergy(vector<int> state){
-
+    double E = 0;
+    vector<float> eigenvalues = getEigenvalues(state);
     for(int i = 0; i < state.size(); i++){
-
+        
+        vector<int> adjacents = adjacentSides(i);
+        for(int j = 0; j < 4; j++){
+            E = E + eigenvalues[i] * eigenvalues[adjacents[j]];
+        }  
     }
-
-    return 0;
+    E = E * 0.25 * J;
+    return E;
 }

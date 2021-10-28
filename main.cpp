@@ -4,10 +4,12 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include "util.h"
 
 namespace constants{
 
-    const int L = 32;
+    //const int L = 32;
+    //const int J = 1;
 
 }
 
@@ -19,20 +21,22 @@ using namespace constants;
 * Args:
 * Returns: vector<int>
 */
-
+/*
 vector<int> createGroundState(){
 
     vector<int> ground_state(L*L);
 
     return ground_state;
 }
+*/
 /*
 *Creates a random state with a specific composition
 *Args: p is a double between 0 and 1
 *Returns: a state as a vector<32>
 */
+/*
 vector<int> createState(double p){
-    vector<int> state(L*L);
+   vector<int> state(L*L);
 
     for(int i = 0; i <p*L*L;i++){
         state[i]=1;
@@ -44,11 +48,13 @@ vector<int> createState(double p){
 
     return state;
 }
+*/
 /*
 * visualizes the State by printing out
 *Args: State as a vector<int>
 *
 */
+/*
 void visualizeState(vector<int> state){
     for(int i = 0;i < state.size();i++){
         cout<<state[i];
@@ -57,28 +63,8 @@ void visualizeState(vector<int> state){
         }
     }
 }
-
-/*
-Calculate the eigenvaluese regarding /sigma_z (pauli)
-Args: state as a vector<int>
-returns a vector named eigenvalues
 */
-vector<float> getEigenvalues(vector<int> state){
 
-    vector<float> eigenvalues(L*L);
-
-    for(int i = 0; i < state.size(); i++){
-        
-        if(state[i] == 1){
-            eigenvalues[i] = 0.5;
-        }
-        else{
-            eigenvalues[i] = -0.5;
-        }
-    }
-
-    return eigenvalues;
-}
 
 int main(){
     vector<int> state = createState(0.5);
