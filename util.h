@@ -132,6 +132,30 @@ vector<int> adjacentSides(int i){
 
     return adjacents;
 }
+
+/*
+Calculate the eigenvaluese regarding /sigma_z (pauli)
+Args: state as a vector<int>
+returns a vector named eigenvalues
+*/
+vector<float> getEigenvalues(vector<int> state){
+
+    vector<float> eigenvalues(L*L);
+
+    for(int i = 0; i < state.size(); i++){
+        
+        if(state[i] == 1){
+            eigenvalues[i] = 0.5;
+        }
+        else{
+            eigenvalues[i] = -0.5;
+        }
+    }
+
+    return eigenvalues;
+}
+
+
 /*
 Calculate the energy of the system using the Hamilton function
 
