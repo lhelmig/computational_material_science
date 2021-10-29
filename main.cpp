@@ -11,7 +11,18 @@ using namespace std;
 using namespace constants;
 
 int main(){
+
     vector<int> state = createState(0.5);
-    visualizeState(state);
-    exportState(state);
+    
+    //visualizeState(state);
+
+    vector<vector<int>> states;
+    
+    for(int i=0; i <= 10; i++){
+
+        states.push_back(createState(1.0*i/10));
+
+    }
+
+    exportSteps(states);
 }

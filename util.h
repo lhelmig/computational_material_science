@@ -169,14 +169,19 @@ Returns the Energie of the whole system
 */
 double calcEnergy(vector<int> state){
     double E = 0;
-    vector<float> eigenvalues = getEigenvalues(state);
+    
+    //vector<float> eigenvalues = getEigenvalues(state);
+
     for(int i = 0; i < state.size(); i++){
         
         vector<int> adjacents = adjacentSides(i);
-        for(int j = 0; j < 4; j++){
-            E = E + eigenvalues[i] * eigenvalues[adjacents[j]];
+
+        for(int j = 0; j < adjacents.size(); j++){
+
+            E = E + (state[i]-1/2) * (state[adjacents[j]]-1/2);
         }  
     }
     E = E * 0.25 * J;
+    
     return E;
 }
