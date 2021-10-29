@@ -41,4 +41,4 @@ for index,line in enumerate(lines):
     if(len(lines)==1):
         plt.savefig("state.png",bbox_inches = 'tight')
     else:
-        plt.savefig("step_plots/step_"+str(index)+"state.png",bbox_inches = 'tight')
+        plt.savefig("step_plots/step_"+"%02d" % (index,)+"_state.png",bbox_inches = 'tight')
