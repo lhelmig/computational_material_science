@@ -8,11 +8,23 @@ namespace constants{
     const int L = 32;
     const double B=0;
     const int J = 1;
+    const double beta = 0.5;
 
 }
 
 using namespace std;
 using namespace constants;
+
+vector<int> flipSide(int side,vector<int> state){
+
+    if(state[side]==0){
+        state[side]=1;
+    }else{
+        state[side]=0;
+    }
+
+    return state;
+}
 
 /*
 * creates the Ground state with every spin=0 (spin-down)
@@ -160,28 +172,88 @@ vector<float> getEigenvalues(vector<int> state){
 /*
 Calculate the energy of the system using the Hamilton function
 
-Energie: E= J 1/4 [m_si * m_sj + m_si * m_sk ......]
-hbar=1 ; 1/4 because of the factor in the operator s_z
-
+Energie: E= J [m_si * m_sj + m_si * m_sk ......]
+hbar=1 ;
 Args: state as a vector<int>
 Returns the Energie of the whole system
 
 */
 double calcEnergy(vector<int> state){
-    double E = 0;
+
+     // Wechselwirkungsenergie der Spins
+
+    double wwE = 0;
+
+    // potentielle Energie im Magnetfeld B
+    
+    double BE = 0; //
     
     //vector<float> eigenvalues = getEigenvalues(state);
 
     for(int i = 0; i < state.size(); i++){
+
+        BE += B * (state[i]-0.5);
         
         vector<int> adjacents = adjacentSides(i);
 
         for(int j = 0; j < adjacents.size(); j++){
 
-            E = E + (state[i]-1/2) * (state[adjacents[j]]-1/2);
+            wwE = wwE + (state[i]-0.5) * (state[adjacents[j]]-0.5);
         }  
     }
-    E = E * 0.25 * J;
+    wwE = wwE * J;
     
-    return E;
+    return wwE+BE;
+}
+
+/**
+ calculates the energy change when one side is flipped
+ Args: side to be flipped as an integer, current state as a vector
+ Returns the energy change as a double 
+ */
+
+double getEnergyChange(int side, vector<int> state){
+
+    double delta_E = 0;
+
+    vector<int> adjacents = adjacentSides(side);
+
+    double sum = 0;
+
+    for(int j = 0; j < adjacents.size();j++){
+
+        sum += state[adjacents[j]]-0.5;
+
+    }
+
+    if(state[side]==1){
+        delta_E = -2*sum;
+    }else{
+        delta_E = 2*sum;
+    }
+
+    return delta_E;
+}
+
+/*
+determines if the spin on a side is flipped or not
+Args: index of side as an integer, state as a vector
+Returns a boolean: true when the spin is flipped and false if not
+*/
+bool isFlipped(int side, vector<int> state){
+    
+    double delta_E = getEnergyChange(side, state);
+
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_real_distribution<> dist(0.0,1.0);
+
+    float r = dist(rng);
+
+    if(r<exp(-delta_E*constants::beta)){
+        return true;
+    }else{
+        return false;
+    }
+
 }

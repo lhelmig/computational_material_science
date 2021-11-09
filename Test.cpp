@@ -59,6 +59,53 @@ void testAdjacentSides(){
 
     visualizeState(state);
 }
+void testEnergyChange(){
+
+    vector<int> state = createState(0.5);
+
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_int_distribution<mt19937::result_type> dist6(0,L*L);
+
+    int side = dist6(rng);
+    double delta_E = getEnergyChange(side,state);
+    double E1 = calcEnergy(state);
+    state = flipSide(side,state);
+    double E2 = calcEnergy(state);
+    if(delta_E==E2-E1){
+        cout << "Test:EnergyChange:True" << endl;
+    }else{
+        cout << "Test:EnergyChange:False" << endl;
+        cout << E2-E1 << endl;
+        cout << delta_E << endl;
+    }
+}
+
+void testFlipping(){
+
+    vector<int> state = createState(1.0);
+
+    bool mistake = false;
+
+    for(int i = 0; i < 100;i++){
+        
+        random_device dev;
+        mt19937 rng(dev());
+        uniform_int_distribution<mt19937::result_type> dist6(0,L*L);
+        
+        int side = dist6(rng);
+
+        if(isFlipped(side,state)==false){
+            mistake = true;
+        }
+    }
+
+    if(mistake){
+        cout << "Test:Flipping:False" << endl;
+    }else{
+        cout << "Test:Flipping:True" << endl;
+    }
+}
 int main(){
 
     /* testLeftBorder();
@@ -69,7 +116,10 @@ int main(){
     cout << endl;
     testLowerBorder(); */
 
-    testAdjacentSides();
+    //testAdjacentSides();
+
+    testEnergyChange();
+    testFlipping();
 
     return 0;
 }
