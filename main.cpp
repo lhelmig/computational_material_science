@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <random>
 #include "util.h"
-#include "iofunc.h"
 
 using namespace std;
 using namespace constants;
@@ -16,7 +15,7 @@ int main(){
     
     //visualizeState(state);
 
-    vector<vector<int>> states;
+    /* vector<vector<int>> states;
     
     for(int i=0; i <= 10; i++){
 
@@ -24,5 +23,7 @@ int main(){
 
     }
 
-    exportSteps(states);
+    dumpStates(states,0,0,1); */
+
+    algoMetropolis(state,100000,100);
 }

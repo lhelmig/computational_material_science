@@ -65,12 +65,12 @@ void testEnergyChange(){
 
     random_device dev;
     mt19937 rng(dev());
-    uniform_int_distribution<mt19937::result_type> dist6(0,L*L);
+    uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
 
     int side = dist6(rng);
     double delta_E = getEnergyChange(side,state);
     double E1 = calcEnergy(state);
-    state = flipSide(side,state);
+    state[side] = flipSide(state[side]);
     double E2 = calcEnergy(state);
     if(delta_E==E2-E1){
         cout << "Test:EnergyChange:True" << endl;

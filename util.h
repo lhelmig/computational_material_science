@@ -2,28 +2,30 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <chrono> 
+#include <ctime>
+#include"iofunc.h"
 
 namespace constants{
 
     const int L = 32;
     const double B=0;
-    const int J = 1;
+    const double J = 1;
     const double beta = 0.5;
+    const double time_between_logs = 100;
 
 }
 
 using namespace std;
 using namespace constants;
 
-vector<int> flipSide(int side,vector<int> state){
+int flipSide(int side_value){
 
-    if(state[side]==0){
-        state[side]=1;
+    if(side_value==0){
+        return 1;
     }else{
-        state[side]=0;
+        return 0;
     }
-
-    return state;
 }
 
 /*
@@ -192,7 +194,7 @@ double calcEnergy(vector<int> state){
 
     for(int i = 0; i < state.size(); i++){
 
-        BE += B * (state[i]-0.5);
+        BE += state[i]-0.5;
         
         vector<int> adjacents = adjacentSides(i);
 
@@ -203,7 +205,70 @@ double calcEnergy(vector<int> state){
     }
     wwE = wwE * J;
     
-    return wwE+BE;
+    return wwE+B*BE;
+}
+
+/*
+Calculate the magnetization of the system using the Hamilton function
+Args: state as a vector<int>
+Returns the magnetization of the whole system
+
+*/
+double calcMagnetization(vector<int> state){
+
+     // Magnetisierung
+
+    double m = 0;
+
+    for(int i = 0; i < state.size(); i++){
+
+        m += state[i]-0.5;
+
+    }
+    
+    return m;
+}
+
+/*
+Combined function to reduce runtime
+
+*/
+vector<double> calc_Energy_Magnetization(vector<int> state){
+
+    // Magnetisierung
+
+    double m = 0;
+
+    // Wechselwirkungsenergie der Spins
+
+    double wwE = 0;
+
+    // potentielle Energie im Magnetfeld B
+    
+    double BE = 0; //
+    
+    //vector<float> eigenvalues = getEigenvalues(state);
+
+    for(int i = 0; i < state.size(); i++){
+
+        BE += state[i]-0.5;
+        
+        vector<int> adjacents = adjacentSides(i);
+
+        for(int j = 0; j < adjacents.size(); j++){
+
+            wwE = wwE + (state[i]-0.5) * (state[adjacents[j]]-0.5);
+        }  
+    }
+    wwE = wwE * J;
+
+    double E = wwE + B*BE;
+
+    m = BE;
+
+    vector<double> results{E,m};
+    
+    return results;
 }
 
 /**
@@ -256,4 +321,60 @@ bool isFlipped(int side, vector<int> state){
         return false;
     }
 
+}
+
+void algoMetropolis(vector<int> state, int N, int k){
+
+    vector<double> energy;
+    vector<double> magnetization;
+    vector<vector<int>> states;
+     
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
+
+    auto start = std::chrono::system_clock::now();
+
+    for(int i = 0; i < N;i++){
+
+        for(int j = 0; j < k; j++){
+
+            // Choose an initial side
+
+            int side = dist6(rng);
+
+            if(isFlipped(side,state)){
+                state[side]= flipSide(state[side]);
+            }
+
+        }
+
+        // Measure
+        vector<int> copystate = state;
+        states.push_back(copystate);
+        vector<double> results = calc_Energy_Magnetization(state);
+        energy.push_back(results[0]);
+        magnetization.push_back(results[1]);
+
+        auto end = chrono::system_clock::now();
+        chrono::duration<double> elapsed_seconds = end-start;
+
+        if(elapsed_seconds.count() > time_between_logs){
+
+            start = end;
+
+            dump_Energy_Magnetization(energy, magnetization,B,J,constants::beta);
+            dumpStates(states,B,J,constants::beta);
+
+            energy = {};
+            magnetization = {};
+            states = {};
+
+        }
+
+
+    }
+
+    dump_Energy_Magnetization(energy, magnetization,B,J,constants::beta);
+    dumpStates(states,B,J,constants::beta);
 }
