@@ -19,6 +19,12 @@ namespace constants{
 using namespace std;
 using namespace constants;
 
+/*
+
+
+
+*/
+
 int flipSide(int side_value){
 
     if(side_value==0){
@@ -29,6 +35,7 @@ int flipSide(int side_value){
 }
 
 /*
+//TODO: anpassen auf (1/2,-1/2) als Werte
 * creates the Ground state with every spin=0 (spin-down)
 * Args:
 * Returns: vector<int>
@@ -47,10 +54,10 @@ vector<int> createGroundState(){
 */
 vector<int> createState(double p){
     
-    vector<int> state(L*L);
+    vector<int> state = createGroundState();
 
     for(int i = 0; i <p*L*L;i++){
-        state[i]=1;
+        state[i]+=1;
     }
 
     random_device rd;
@@ -60,6 +67,7 @@ vector<int> createState(double p){
     return state;
 }
 /*
+//TODO: anpassen auf (1/2,-1/2) als Werte
 * visualizes the State by printing out
 *Args: State as a vector<int>
 *
@@ -149,29 +157,6 @@ vector<int> adjacentSides(int i){
 }
 
 /*
-Calculate the eigenvaluese regarding /sigma_z (pauli)
-Args: state as a vector<int>
-returns a vector named eigenvalues
-*/
-vector<float> getEigenvalues(vector<int> state){
-
-    vector<float> eigenvalues(L*L);
-
-    for(int i = 0; i < state.size(); i++){
-        
-        if(state[i] == 1){
-            eigenvalues[i] = 0.5;
-        }
-        else{
-            eigenvalues[i] = -0.5;
-        }
-    }
-
-    return eigenvalues;
-}
-
-
-/*
 Calculate the energy of the system using the Hamilton function
 
 Energie: E= J [m_si * m_sj + m_si * m_sk ......]
@@ -182,7 +167,7 @@ Returns the Energie of the whole system
 */
 double calcEnergy(vector<int> state){
 
-     // Wechselwirkungsenergie der Spins
+    // Wechselwirkungsenergie der Spins
 
     double wwE = 0;
 
@@ -194,13 +179,14 @@ double calcEnergy(vector<int> state){
 
     for(int i = 0; i < state.size(); i++){
 
-        BE += state[i]-0.5;
+        BE += state[i];
         
         vector<int> adjacents = adjacentSides(i);
 
         for(int j = 0; j < adjacents.size(); j++){
 
-            wwE = wwE + (state[i]-0.5) * (state[adjacents[j]]-0.5);
+            wwE = wwE + state[i] * state[adjacents[j]];
+
         }  
     }
     wwE = wwE * J;
@@ -222,7 +208,7 @@ double calcMagnetization(vector<int> state){
 
     for(int i = 0; i < state.size(); i++){
 
-        m += state[i]-0.5;
+        m += state[i];
 
     }
     
@@ -258,6 +244,7 @@ vector<double> calc_Energy_Magnetization(vector<int> state){
         for(int j = 0; j < adjacents.size(); j++){
 
             wwE = wwE + (state[i]-0.5) * (state[adjacents[j]]-0.5);
+
         }  
     }
     wwE = wwE * J;
@@ -287,11 +274,11 @@ double getEnergyChange(int side, vector<int> state){
 
     for(int j = 0; j < adjacents.size();j++){
 
-        sum += state[adjacents[j]]-0.5;
+        sum += state[adjacents[j]];
 
     }
 
-    if(state[side]==1){
+    if(state[side]==0.5){
         delta_E = -2*sum;
     }else{
         delta_E = 2*sum;
@@ -323,6 +310,11 @@ bool isFlipped(int side, vector<int> state){
 
 }
 
+/*
+
+
+
+*/
 void algoMetropolis(vector<int> state, int N, int k){
 
     vector<double> energy;
@@ -350,9 +342,12 @@ void algoMetropolis(vector<int> state, int N, int k){
         }
 
         // Measure
+
         vector<int> copystate = state;
         states.push_back(copystate);
+
         vector<double> results = calc_Energy_Magnetization(state);
+        
         energy.push_back(results[0]);
         magnetization.push_back(results[1]);
 
