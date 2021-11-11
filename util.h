@@ -239,7 +239,7 @@ vector<double> calc_Energy_Magnetization(vector<double> state){
 
     for(int i = 0; i < state.size(); i++){
 
-        BE += state[i]-0.5;
+        BE += state[i];
         
         vector<int> adjacents = adjacentSides(i);
 
@@ -342,7 +342,8 @@ void algoMetropolis(vector<double> state, int N, int k){
             }
 
         }
-
+        //Ladebalken
+        cout << i << "/" << N << endl;
         // Measure
 
         vector<double> copystate = state;
