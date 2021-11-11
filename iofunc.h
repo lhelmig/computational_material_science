@@ -10,7 +10,7 @@ namespace constants{
 
 using namespace std;
 
-void exportState(vector<int> state){
+void exportState(vector<double> state){
     
     ofstream file;
     file.open(constants::name);
@@ -24,14 +24,14 @@ void exportState(vector<int> state){
     file.close();
 }
 
-void exportSteps(vector<vector<int>> steps){
+void exportSteps(vector<vector<double>> steps){
 
     ofstream file;
     file.open(constants::steps_name);
 
     for(int j = 0; j <steps.size();j++){
 
-        vector<int> state = steps[j];
+        vector<double> state = steps[j];
 
         for(int i = 0; i < state.size();i++){
             
@@ -45,7 +45,7 @@ void exportSteps(vector<vector<int>> steps){
     file.close();
 }
 
-void dumpStates(vector<vector<int>> states,double B, double J, double beta){
+void dumpStates(vector<vector<double>> states,double B, double J, double beta){
 
     string name = "states_B=" + to_string(B) + "_J=" + to_string(J) + "_beta=" + to_string(beta) + ".txt";
 
@@ -55,7 +55,7 @@ void dumpStates(vector<vector<int>> states,double B, double J, double beta){
 
     while(i<=states.size()-1){
 
-        vector<int> state = states[i];
+        vector<double> state = states[i];
 
         for(int j = 0; j < state.size();j++){
             

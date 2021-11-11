@@ -6,7 +6,7 @@ L = 32
 
 #f=open("state.txt","r")
 
-f=open("steps_state.txt","r")
+f=open("states_B=0.000000_J=1.000000_beta=0.500000.txt","r")
 
 lines=f.readlines()
 
@@ -33,7 +33,7 @@ for index,line in enumerate(lines):
         
         ax.tick_params(labeltop=True, labelright=True)
         
-        if(int(state[i])==0):
+        if(state[i] == '0.5'):
             plt.plot(width,height,'.',color="tab:blue")
         else:
             plt.plot(width,height,'.',color="tab:orange")

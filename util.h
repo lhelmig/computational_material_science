@@ -25,25 +25,28 @@ using namespace constants;
 
 */
 
-int flipSide(int side_value){
+double flipSide(double side_value){
 
-    if(side_value==0){
-        return 1;
+    if(side_value== -0.5){
+        return 0.5;
     }else{
-        return 0;
+        return -0.5;
     }
 }
 
 /*
-//TODO: anpassen auf (1/2,-1/2) als Werte
 * creates the Ground state with every spin=0 (spin-down)
 * Args:
 * Returns: vector<int>
 */
 
-vector<int> createGroundState(){
+vector<double> createGroundState(){
 
-    vector<int> ground_state(L*L);
+    vector<double> ground_state(L*L);
+
+    for(int i = 0; i < ground_state.size(); i++){
+        ground_state[i] = -0.5;
+    }
 
     return ground_state;
 }
@@ -52,9 +55,9 @@ vector<int> createGroundState(){
 *Args: p is a double between 0 and 1
 *Returns: a state as a vector<32>
 */
-vector<int> createState(double p){
+vector<double> createState(double p){
     
-    vector<int> state = createGroundState();
+    vector<double> state = createGroundState();
 
     for(int i = 0; i <p*L*L;i++){
         state[i]+=1;
@@ -67,12 +70,11 @@ vector<int> createState(double p){
     return state;
 }
 /*
-//TODO: anpassen auf (1/2,-1/2) als Werte
 * visualizes the State by printing out
 *Args: State as a vector<int>
 *
 */
-void visualizeState(vector<int> state){
+void visualizeState(vector<double> state){
     for(int i = 0;i < state.size();i++){
         cout<<state[i];
         if((i+1)%L==0){
@@ -165,7 +167,7 @@ Args: state as a vector<int>
 Returns the Energie of the whole system
 
 */
-double calcEnergy(vector<int> state){
+double calcEnergy(vector<double> state){
 
     // Wechselwirkungsenergie der Spins
 
@@ -200,7 +202,7 @@ Args: state as a vector<int>
 Returns the magnetization of the whole system
 
 */
-double calcMagnetization(vector<int> state){
+double calcMagnetization(vector<double> state){
 
      // Magnetisierung
 
@@ -219,7 +221,7 @@ double calcMagnetization(vector<int> state){
 Combined function to reduce runtime
 
 */
-vector<double> calc_Energy_Magnetization(vector<int> state){
+vector<double> calc_Energy_Magnetization(vector<double> state){
 
     // Magnetisierung
 
@@ -264,7 +266,7 @@ vector<double> calc_Energy_Magnetization(vector<int> state){
  Returns the energy change as a double 
  */
 
-double getEnergyChange(int side, vector<int> state){
+double getEnergyChange(int side, vector<double> state){
 
     double delta_E = 0;
 
@@ -292,7 +294,7 @@ determines if the spin on a side is flipped or not
 Args: index of side as an integer, state as a vector
 Returns a boolean: true when the spin is flipped and false if not
 */
-bool isFlipped(int side, vector<int> state){
+bool isFlipped(int side, vector<double> state){
     
     double delta_E = getEnergyChange(side, state);
 
@@ -315,11 +317,11 @@ bool isFlipped(int side, vector<int> state){
 
 
 */
-void algoMetropolis(vector<int> state, int N, int k){
+void algoMetropolis(vector<double> state, int N, int k){
 
     vector<double> energy;
     vector<double> magnetization;
-    vector<vector<int>> states;
+    vector<vector<double>> states;
      
     random_device dev;
     mt19937 rng(dev());
@@ -343,7 +345,7 @@ void algoMetropolis(vector<int> state, int N, int k){
 
         // Measure
 
-        vector<int> copystate = state;
+        vector<double> copystate = state;
         states.push_back(copystate);
 
         vector<double> results = calc_Energy_Magnetization(state);
