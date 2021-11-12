@@ -13,7 +13,7 @@ namespace constants{
     const double J = 1;
     const double beta = 5;
     const double time_between_logs = 100;
-
+    vector<vector<double>> exparray;
 }
 
 using namespace std;
@@ -22,8 +22,28 @@ using namespace constants;
 /*
 
 
-
+Convention exparray[0 for spin up, 1 for spin down][numbers of neighbors with Spin Up]
 */
+void initialized_exparray(double beta){
+
+    exparray={};
+    
+    vector<vector<double>> delta_E{
+        {-4 * 0.5 * -2 , -4 * 0.5 * -1 , -4 * 0.5 * 0 , -4 * 0.5 * 1 , -4 * 0.5 * 2},
+        {-4 * -0.5 * -2 , -4 * -0.5 * -1 , -4 * -0.5 * 0 , -4 * -0.5 * 1 , -4 * -0.5 * 2}
+    };
+
+    for(int i = 0; i < 2; i++){
+        vector<double>temp;
+        for(int j = 0; j < 5; j++){
+            temp.push_back(exp(delta_E[i][j]*beta));
+        }
+        exparray.push_back(temp);
+        
+    }
+
+}
+
 
 double flipSide(double side_value){
 
@@ -317,9 +337,24 @@ determines if the spin on a side is flipped or not
 Args: index of side as an integer, state as a vector
 Returns a boolean: true when the spin is flipped and false if not
 */
+
 bool isFlipped(int side, vector<double> state, double beta){
     
-    double delta_E = getEnergyChange(side, state);
+    vector<int> adjacent = adjacentSides(side);
+    int k = 0;
+    double exp;
+
+    for(int i = 0; i < 4; i++){
+        if(state[adjacent[i]]==0.5){
+            k += 1;
+        }
+    }
+
+    if(state[side] == 0.5){
+        exp = exparray[0][k];
+    }else{
+        exp = exparray[1][k];
+    }
 
     random_device dev;
     mt19937 rng(dev());
@@ -327,7 +362,7 @@ bool isFlipped(int side, vector<double> state, double beta){
 
     float r = dist(rng);
 
-    if(r<exp(-delta_E*beta)){
+    if(r<exp){
         return true;
     }else{
         return false;
@@ -355,7 +390,7 @@ void algoMetropolis(vector<double> state, int N, int k){
 
     //Für macOs
     auto start = chrono::system_clock::now();
-
+    initialized_exparray(constants::beta);
     for(int i = 0; i < N;i++){
 
         for(int j = 0; j < k; j++){
@@ -419,7 +454,7 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
     random_device dev;
     mt19937 rng(dev());
     uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
-
+    initialized_exparray(beta);
     for(int i = 0; i < N;i++){
 
         for(int j = 0; j < k; j++){
@@ -457,7 +492,7 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
 
     int number_discrete_points = 100;
 
-    double delta_beta = beta_max-beta_min;
+    double delta_beta = (beta_max-beta_min)/number_discrete_points;
 
     vector<double> interval_beta;
     vector<double> average_energy;
@@ -468,6 +503,8 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
         double actual_beta = beta_min + i * delta_beta;
 
         vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k);
+
+        cout << i << "/" << number_discrete_points << endl;
 
         interval_beta.push_back(actual_beta);
         average_energy.push_back(result[0]);

@@ -28,5 +28,5 @@ int main(){
 
     //algoMetropolis(state,100000,1);
 
-    algoMetropolisTemperature(state,0,5,1000,10);
+    algoMetropolisTemperature(state,0,2,10000,10);
 }
