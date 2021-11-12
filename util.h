@@ -245,7 +245,7 @@ vector<double> calc_Energy_Magnetization(vector<double> state){
 
         for(int j = 0; j < adjacents.size(); j++){
 
-            wwE = wwE + (state[i]-0.5) * (state[adjacents[j]]-0.5);
+            wwE = wwE + state[i] * state[adjacents[j]];
 
         }  
     }
@@ -313,6 +313,29 @@ bool isFlipped(int side, vector<double> state){
 }
 
 /*
+determines if the spin on a side is flipped or not
+Args: index of side as an integer, state as a vector
+Returns a boolean: true when the spin is flipped and false if not
+*/
+bool isFlipped(int side, vector<double> state, double beta){
+    
+    double delta_E = getEnergyChange(side, state);
+
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_real_distribution<> dist(0.0,1.0);
+
+    float r = dist(rng);
+
+    if(r<exp(-delta_E*beta)){
+        return true;
+    }else{
+        return false;
+    }
+
+}
+
+/*
 
 
 
@@ -321,13 +344,17 @@ void algoMetropolis(vector<double> state, int N, int k){
 
     vector<double> energy;
     vector<double> magnetization;
-    vector<vector<double>> states;
+    vector<vector<double> > states;
      
     random_device dev;
     mt19937 rng(dev());
     uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
 
-    auto start = std::chrono::system_clock::now();
+    //Für windows g++
+    //auto start = std::chrono::system_clock::now();
+
+    //Für macOs
+    auto start = chrono::system_clock::now();
 
     for(int i = 0; i < N;i++){
 
@@ -375,4 +402,78 @@ void algoMetropolis(vector<double> state, int N, int k){
 
     dump_Energy_Magnetization(energy, magnetization,B,J,constants::beta);
     //dumpStates(states,B,J,constants::beta);
+}
+
+
+/*
+
+
+
+*/
+
+vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, int N, int k){
+
+    double energy = 0;
+    double magnetization = 0;
+     
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
+
+    for(int i = 0; i < N;i++){
+
+        for(int j = 0; j < k; j++){
+
+            // Choose an initial side
+
+            int side = dist6(rng);
+
+            if(isFlipped(side,state,beta)){
+                state[side]= flipSide(state[side]);
+            }
+
+            vector<double> results = calc_Energy_Magnetization(state);
+            
+            energy+=results[0];
+            magnetization+=results[1];
+
+        }
+        //Ladebalken
+        //cout << i << "/" << N << endl;
+        // Measure
+
+
+    }
+
+    energy = energy/(N*k);
+    magnetization = magnetization/(N*k);
+
+    vector<double> result{energy,magnetization};
+
+    return result;
+}
+
+void algoMetropolisTemperature(vector<double> state,double beta_min, double beta_max, int N, int k){
+
+    int number_discrete_points = 100;
+
+    double delta_beta = beta_max-beta_min;
+
+    vector<double> interval_beta;
+    vector<double> average_energy;
+    vector<double> average_magnetization;
+
+    for(int i = 0; i < number_discrete_points; i++){
+
+        double actual_beta = beta_min + i * delta_beta;
+
+        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k);
+
+        interval_beta.push_back(actual_beta);
+        average_energy.push_back(result[0]);
+        average_magnetization.push_back(result[1]);
+    }
+
+    dump_average_Energy_Magnetization(interval_beta,average_energy,average_magnetization,constants::B,constants::J);
+
 }

@@ -24,7 +24,7 @@ void exportState(vector<double> state){
     file.close();
 }
 
-void exportSteps(vector<vector<double>> steps){
+void exportSteps(vector<vector<double> > steps){
 
     ofstream file;
     file.open(constants::steps_name);
@@ -45,7 +45,7 @@ void exportSteps(vector<vector<double>> steps){
     file.close();
 }
 
-void dumpStates(vector<vector<double>> states,double B, double J, double beta){
+void dumpStates(vector<vector<double> > states,double B, double J, double beta){
 
     string name = "states_B=" + to_string(B) + "_J=" + to_string(J) + "_beta=" + to_string(beta) + ".txt";
 
@@ -115,6 +115,23 @@ void dump_Energy_Magnetization(vector<double> energy,vector<double> magnetizatio
     while(i<=energy.size()-1){
 
         log << energy[i] <<"\t" << magnetization[i] << endl;
+
+        i++;
+
+    }
+}
+
+void dump_average_Energy_Magnetization(vector<double> beta,vector<double> average_energy,vector<double> average_magnetization, double B, double J){
+
+    string name = "beta_energy+magnetization_B=" + to_string(B) + "_J=" + to_string(J) + ".txt";
+
+    ofstream log(name, ios_base::app | ios_base::out);
+
+    int i = 0;
+
+    while(i<=average_energy.size()-1){
+
+        log << beta[i] << "\t" << average_energy[i] << "\t" << average_magnetization[i] << endl;
 
         i++;
 
