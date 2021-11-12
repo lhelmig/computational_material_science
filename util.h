@@ -11,7 +11,7 @@ namespace constants{
     const int L = 32;
     const double B=0;
     const double J = 1;
-    const double beta = 0.5;
+    const double beta = 5;
     const double time_between_logs = 100;
 
 }
@@ -362,7 +362,7 @@ void algoMetropolis(vector<double> state, int N, int k){
             start = end;
 
             dump_Energy_Magnetization(energy, magnetization,B,J,constants::beta);
-            dumpStates(states,B,J,constants::beta);
+            //dumpStates(states,B,J,constants::beta);
 
             energy = {};
             magnetization = {};
@@ -374,5 +374,5 @@ void algoMetropolis(vector<double> state, int N, int k){
     }
 
     dump_Energy_Magnetization(energy, magnetization,B,J,constants::beta);
-    dumpStates(states,B,J,constants::beta);
+    //dumpStates(states,B,J,constants::beta);
 }

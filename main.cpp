@@ -11,7 +11,7 @@ using namespace constants;
 
 int main(){
 
-    vector<double> state = createState(0);
+    vector<double> state = createState(1);
 
     
     //visualizeState(state);
@@ -26,5 +26,5 @@ int main(){
 
     dumpStates(states,0,0,1); */
 
-    algoMetropolis(state,2000,100);
+    algoMetropolis(state,100000,1);
 }
