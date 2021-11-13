@@ -137,3 +137,20 @@ void dump_average_Energy_Magnetization(vector<double> beta,vector<double> averag
 
     }
 }
+
+void dump_average_Energy_MagnetizationMultithread(vector<double> beta,vector<double> average_energy,vector<double> average_magnetization, double B, double J,string additional_identifier){
+
+    string name = additional_identifier + "_beta_energy+magnetization_B=" + to_string(B) + "_J=" + to_string(J) + ".txt";
+
+    ofstream log(name, ios_base::app | ios_base::out);
+
+    int i = 0;
+
+    while(i<=average_energy.size()-1){
+
+        log << beta[i] << "\t" << average_energy[i] << "\t" << average_magnetization[i] << endl;
+
+        i++;
+
+    }
+}

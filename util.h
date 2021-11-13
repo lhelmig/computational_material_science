@@ -4,6 +4,8 @@
 #include <random>
 #include <chrono> 
 #include <ctime>
+#include <thread>
+
 #include"iofunc.h"
 
 namespace constants{
@@ -36,7 +38,7 @@ void initialized_exparray(double beta){
     for(int i = 0; i < 2; i++){
         vector<double>temp;
         for(int j = 0; j < 5; j++){
-            temp.push_back(exp(delta_E[i][j]*beta));
+            temp.push_back(exp(-delta_E[i][j]*beta));
         }
         exparray.push_back(temp);
         
@@ -96,7 +98,7 @@ vector<double> createState(double p){
 */
 void visualizeState(vector<double> state){
     for(int i = 0;i < state.size();i++){
-        cout<<state[i];
+        cout<<state[i]+0.5;
         if((i+1)%L==0){
             cout<<endl;
         }
@@ -176,6 +178,21 @@ vector<int> adjacentSides(int i){
     }
 
     return adjacents;
+}
+
+int countAdjacentSpinUps(int side, vector<double> state){
+
+    vector<int> adjacent = adjacentSides(side);
+
+    int k=0;
+
+    for(int i = 0; i < adjacent.size(); i++){
+        if(state[adjacent[i]]==0.5){
+            k += 1;
+        }
+    }
+
+    return k;
 }
 
 /*
@@ -339,16 +356,10 @@ Returns a boolean: true when the spin is flipped and false if not
 */
 
 bool isFlipped(int side, vector<double> state, double beta){
-    
-    vector<int> adjacent = adjacentSides(side);
-    int k = 0;
-    double exp;
 
-    for(int i = 0; i < 4; i++){
-        if(state[adjacent[i]]==0.5){
-            k += 1;
-        }
-    }
+    int k = countAdjacentSpinUps(side,state);
+    
+    double exp;
 
     if(state[side] == 0.5){
         exp = exparray[0][k];
@@ -385,12 +396,9 @@ void algoMetropolis(vector<double> state, int N, int k){
     mt19937 rng(dev());
     uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
 
-    //Für windows g++
-    //auto start = std::chrono::system_clock::now();
-
-    //Für macOs
     auto start = chrono::system_clock::now();
     initialized_exparray(constants::beta);
+
     for(int i = 0; i < N;i++){
 
         for(int j = 0; j < k; j++){
@@ -513,4 +521,66 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
 
     dump_average_Energy_Magnetization(interval_beta,average_energy,average_magnetization,constants::B,constants::J);
 
+}
+
+void algoMetropolisTemperatureMultithread(vector<double> state,double beta_min, double beta_max, int N, int k, string additional_identifier){
+
+    int number_discrete_points = 100;
+
+    double delta_beta = (beta_max-beta_min)/number_discrete_points;
+
+    vector<double> interval_beta;
+    vector<double> average_energy;
+    vector<double> average_magnetization;
+
+    for(int i = 0; i < number_discrete_points; i++){
+
+        double actual_beta = beta_min + i * delta_beta;
+
+        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k);
+
+        cout << i << "/" << number_discrete_points << endl;
+
+        interval_beta.push_back(actual_beta);
+        average_energy.push_back(result[0]);
+        average_magnetization.push_back(result[1]);
+    }
+
+    dump_average_Energy_MagnetizationMultithread(interval_beta,average_energy,average_magnetization,constants::B,constants::J,additional_identifier);
+
+}
+
+void algoMetropolisMultithread(vector<double> state,double beta_min, double beta_max, int N, int k){
+
+    const auto processor_count = std::thread::hardware_concurrency();
+
+    double beta_diff = (beta_max-beta_min)/((int) processor_count);
+
+    cout << processor_count << endl;
+
+    int max_processor_count = 6;
+
+    int number_threads = 0;
+
+    if(((int)processor_count)<max_processor_count){
+
+        max_processor_count=(int)processor_count;
+
+    }
+
+    vector<thread> threads(max_processor_count);
+
+    for(int i = 0; i < max_processor_count;i++){
+
+        string name = "thread" + to_string(i);
+
+        double thread_beta_min = beta_min + i*beta_diff;
+        double thread_beta_max = beta_min + (i+1)*beta_diff;
+
+        threads[i]= thread(algoMetropolisTemperatureMultithread,state,thread_beta_min,thread_beta_max,N,k,name);
+    }
+
+    for (auto& th : threads) {
+        th.join();
+    }
 }
