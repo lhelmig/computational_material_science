@@ -30,5 +30,5 @@ int main(){
 
     //algoMetropolisTemperature(state,0,2,10000,10);
 
-    algoMetropolisMultithread(state,0,2,100,10);
+    algoMetropolisMultithread(state,0,2,100000,1);
 }

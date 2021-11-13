@@ -554,8 +554,6 @@ void algoMetropolisMultithread(vector<double> state,double beta_min, double beta
 
     const auto processor_count = std::thread::hardware_concurrency();
 
-    double beta_diff = (beta_max-beta_min)/((int) processor_count);
-
     cout << processor_count << endl;
 
     int max_processor_count = 6;
@@ -567,6 +565,8 @@ void algoMetropolisMultithread(vector<double> state,double beta_min, double beta
         max_processor_count=(int)processor_count;
 
     }
+
+    double beta_diff = (beta_max-beta_min)/(max_processor_count);
 
     vector<thread> threads(max_processor_count);
 
