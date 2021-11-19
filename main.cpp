@@ -9,26 +9,22 @@
 using namespace std;
 using namespace constants;
 
+
 int main(){
+
+    //Parameters for the simulation
+    double beta_min = 0;                    //minimum beta
+    double beta_max = 0.75;                 //maximum beta
+    int N = 10000;                           //measurements
+    int k = L*L;                            //steps bevor measurement
+    int number_discrete_points = 100;       //number of betas between max and min
+    double dE = 20;                       //energiededifference for the termination condition
+    int deviationcount = 30;                //number of consecutive successful derivations
+
 
     vector<double> state = createState(0.5);
 
-    
-    //visualizeState(state);
+    algoMetropolisTemperature(state,beta_min, beta_max, N, k, number_discrete_points, dE, deviationcount);
 
-    /* vector<vector<int>> states;
-    
-    for(int i=0; i <= 10; i++){
-
-        states.push_back(createState(1.0*i/10));
-
-    }
-
-    dumpStates(states,0,0,1); */
-
-    //algoMetropolis(state,100000,1);
-
-    //algoMetropolisTemperature(state,0,2,10000,10);
-
-    algoMetropolisMultithread(state,0,2,100000,1);
+    //algoMetropolisMultithread(state,0,2,100000,1);
 }

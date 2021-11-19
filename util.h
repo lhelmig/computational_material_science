@@ -10,11 +10,11 @@
 
 namespace constants{
 
-    const int L = 32;
-    const double B=0;
-    const double J = 1;
-    const double beta = 5;
-    const double time_between_logs = 100;
+    const int L = 32;                //Latice size
+    const double B=0;               //Magneticfield constant    
+    const double J = 1;             //Spin-spin-coppling
+    const double beta = 5;          //parameter for temperature
+    const double time_between_logs = 100;   
     vector<vector<double>> exparray;
 }
 
@@ -25,10 +25,11 @@ using namespace constants;
 
 
 Convention exparray[0 for spin up, 1 for spin down][numbers of neighbors with Spin Up]
+Initialize a vector for the differenze energy (exp(DeltaE*beta))
 */
 void initialized_exparray(double beta){
 
-    exparray={};
+    exparray={};      
     
     vector<vector<double>> delta_E{
         {-4 * 0.5 * -2 , -4 * 0.5 * -1 , -4 * 0.5 * 0 , -4 * 0.5 * 1 , -4 * 0.5 * 2},
@@ -46,7 +47,7 @@ void initialized_exparray(double beta){
 
 }
 
-
+//Function to flip the spin
 double flipSide(double side_value){
 
     if(side_value== -0.5){
@@ -179,7 +180,7 @@ vector<int> adjacentSides(int i){
 
     return adjacents;
 }
-
+//count the adjacent spin up's for a side
 int countAdjacentSpinUps(int side, vector<double> state){
 
     vector<int> adjacent = adjacentSides(side);
@@ -454,16 +455,21 @@ void algoMetropolis(vector<double> state, int N, int k){
 
 */
 
-vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, int N, int k){
+vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, int N, int k, double dE, int deviationcount){
 
     double energy = 0;
     double magnetization = 0;
+    int g = 0;
+    double deltaE = 0;
+    double average_energy = 0;
+    double previousenergy = 0;
      
     random_device dev;
     mt19937 rng(dev());
     uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
     initialized_exparray(beta);
     for(int i = 0; i < N;i++){
+
 
         for(int j = 0; j < k; j++){
 
@@ -475,30 +481,38 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
                 state[side]= flipSide(state[side]);
             }
 
-            vector<double> results = calc_Energy_Magnetization(state);
-            
-            energy+=results[0];
-            magnetization+=results[1];
-
         }
-        //Ladebalken
-        //cout << i << "/" << N << endl;
         // Measure
+        vector<double> results = calc_Energy_Magnetization(state);
+            
+        energy+=results[0];
+        magnetization+=results[1];
+        //Abbruchbedingung
 
-
+        if(i>10){ //Es soll immer mindestens 10 mal gemessen werden
+        average_energy = energy/(i+1);
+        double delta_energy = abs( results[0]- previousenergy );
+            if(delta_energy < dE){
+                g = g + 1;
+            }else{
+                g=0;
+            }
+        }
+        if(g == deviationcount){
+            cout << i << endl;
+            i=N;
+        }
+        previousenergy = results[0];
     }
-
-    energy = energy/(N*k);
-    magnetization = magnetization/(N*k);
+    energy = energy/(N);
+    magnetization = magnetization/(N);
 
     vector<double> result{energy,magnetization};
 
     return result;
 }
 
-void algoMetropolisTemperature(vector<double> state,double beta_min, double beta_max, int N, int k){
-
-    int number_discrete_points = 100;
+void algoMetropolisTemperature(vector<double> state,double beta_min, double beta_max, int N, int k, int number_discrete_points, double dE, int deviationcount){
 
     double delta_beta = (beta_max-beta_min)/number_discrete_points;
 
@@ -510,7 +524,7 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
 
         double actual_beta = beta_min + i * delta_beta;
 
-        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k);
+        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k,dE,deviationcount);
 
         cout << i << "/" << number_discrete_points << endl;
 
@@ -522,7 +536,7 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
     dump_average_Energy_Magnetization(interval_beta,average_energy,average_magnetization,constants::B,constants::J);
 
 }
-
+/*
 void algoMetropolisTemperatureMultithread(vector<double> state,double beta_min, double beta_max, int N, int k, string additional_identifier){
 
     int number_discrete_points = 100;
@@ -584,3 +598,4 @@ void algoMetropolisMultithread(vector<double> state,double beta_min, double beta
         th.join();
     }
 }
+*/
