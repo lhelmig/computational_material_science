@@ -11,9 +11,9 @@
 namespace constants{
 
     const int L = 32;                //Latice size
-    const double B=0;               //Magneticfield constant    
+    const double B = 0;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
-    const double beta = 5;          //parameter for temperature
+    const double beta = 1;          //parameter for temperature
     const double time_between_logs = 100;   
     vector<vector<double>> exparray;
 }
@@ -460,9 +460,7 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
     double energy = 0;
     double magnetization = 0;
     int g = 0;
-    double deltaE = 0;
     double average_energy = 0;
-    double previousenergy = 0;
      
     random_device dev;
     mt19937 rng(dev());
@@ -487,22 +485,26 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
             
         energy+=results[0];
         magnetization+=results[1];
+
         //Abbruchbedingung
 
-        if(i>10){ //Es soll immer mindestens 10 mal gemessen werden
+        double average_energy_before = average_energy;
         average_energy = energy/(i+1);
-        double delta_energy = abs( results[0]- previousenergy );
-            if(delta_energy < dE){
+        double measure_dE = abs(average_energy_before - average_energy);
+        double percentage_deviation = measure_dE / abs(average_energy);
+
+        //cout << percentage_deviation << endl;
+        
+            if(percentage_deviation < dE){
                 g = g + 1;
             }else{
                 g=0;
             }
-        }
+        
         if(g == deviationcount){
             cout << i << endl;
             i=N;
         }
-        previousenergy = results[0];
     }
     energy = energy/(N);
     magnetization = magnetization/(N);
