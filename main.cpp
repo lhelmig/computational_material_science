@@ -20,7 +20,7 @@ int main(){
     double precision = 0.00001;                       // precision of the energy
 
 
-    vector<double> state = createState(0.5);
+    vector<double> state = createState(1);
 
     algoMetropolisTemperature(state,beta_min, beta_max, N, k, number_discrete_points, precision);
 

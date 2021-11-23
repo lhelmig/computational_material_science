@@ -11,9 +11,9 @@
 namespace constants{
 
     const int L = 32;                //Latice size
-    const double B=0;               //Magneticfield constant    
+    const double B = 0;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
-    const double beta = 5;          //parameter for temperature
+    const double beta = 1;          //parameter for temperature
     const double time_between_logs = 100;   
     vector<vector<double>> exparray;
 }
