@@ -455,20 +455,24 @@ void algoMetropolis(vector<double> state, int N, int k){
 
 */
 
-vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, int N, int k, double dE, int deviationcount){
+vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, int N, int k, double precision){
 
+    int check_if_near_eq = 10; // nach 10 lines überprüfen ob in der Nähe des Eq
+    int stop = 20; // stops the simulation after being near eq 5 times in a row
     double energy = 0;
     double magnetization = 0;
-    int g = 0;
-    double deltaE = 0;
+    
+    int conseq_near_eq = 0;
+
     double average_energy = 0;
-    double previousenergy = 0;
+
+    bool near_eq = false;
      
     random_device dev;
     mt19937 rng(dev());
     uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
     initialized_exparray(beta);
-    for(int i = 0; i < N;i++){
+    for(int i = 0; i < N && !near_eq;i++){
 
 
         for(int j = 0; j < k; j++){
@@ -484,25 +488,41 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
         }
         // Measure
         vector<double> results = calc_Energy_Magnetization(state);
+
+        /*
+
+        if(i%check_if_near_eq==0 && i > L*L){
+
+            average_energy = energy/(i);
+
+            double rel_err = abs(results[0]-average_energy)/average_energy;
+
+            if(rel_err < precision){
+                
+                
+                conseq_near_eq += 1;
+
+            }else{
+
+                conseq_near_eq = 0;
+
+            }
+        }
+
+        if (conseq_near_eq == stop ){
+            
+            near_eq = true;
+
+            cout << "near eq: continuing with next beta" << endl;
+            
+            }
+        
+        */
+        
             
         energy+=results[0];
         magnetization+=results[1];
-        //Abbruchbedingung
-
-        if(i>10){ //Es soll immer mindestens 10 mal gemessen werden
-        average_energy = energy/(i+1);
-        double delta_energy = abs( results[0]- previousenergy );
-            if(delta_energy < dE){
-                g = g + 1;
-            }else{
-                g=0;
-            }
-        }
-        if(g == deviationcount){
-            cout << i << endl;
-            i=N;
-        }
-        previousenergy = results[0];
+        
     }
     energy = energy/(N);
     magnetization = magnetization/(N);
@@ -512,7 +532,7 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
     return result;
 }
 
-void algoMetropolisTemperature(vector<double> state,double beta_min, double beta_max, int N, int k, int number_discrete_points, double dE, int deviationcount){
+void algoMetropolisTemperature(vector<double> state,double beta_min, double beta_max, int N, int k, int number_discrete_points, double precision){
 
     double delta_beta = (beta_max-beta_min)/number_discrete_points;
 
@@ -524,7 +544,7 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
 
         double actual_beta = beta_min + i * delta_beta;
 
-        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k,dE,deviationcount);
+        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k,precision);
 
         cout << i << "/" << number_discrete_points << endl;
 
@@ -537,7 +557,10 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
 
 }
 /*
-void algoMetropolisTemperatureMultithread(vector<double> state,double beta_min, double beta_max, int N, int k, string additional_identifier){
+
+Multithread macht noch Probleme ^^
+
+void algoMetropolisTemperatureMultithread(vector<double> state,double beta_min, double beta_max, int N, int k, double precision, string additional_identifier){
 
     int number_discrete_points = 100;
 
@@ -551,7 +574,7 @@ void algoMetropolisTemperatureMultithread(vector<double> state,double beta_min, 
 
         double actual_beta = beta_min + i * delta_beta;
 
-        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k);
+        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k, precision);
 
         cout << i << "/" << number_discrete_points << endl;
 
