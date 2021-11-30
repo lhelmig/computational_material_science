@@ -95,7 +95,9 @@ void testFlipping(){
         
         int side = dist6(rng);
 
-        if(isFlipped(side,state)==false){
+        initialized_exparray(10);
+
+        if(isFlipped(side,state,10)==true){
             mistake = true;
         }
     }

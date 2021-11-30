@@ -11,7 +11,7 @@
 namespace constants{
 
     const int L = 32;                //Latice size
-    const double B = 0;               //Magneticfield constant    
+    const double B = 0.5;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
     const double beta = 5;          //parameter for temperature
     const double time_between_logs = 100;   
@@ -32,8 +32,8 @@ void initialized_exparray(double beta){
     exparray={};      
     
     vector<vector<double> > delta_E{
-        {-4 * 0.5 * -2 * J - B , -4 * 0.5 * -1 * J - B, -4 * 0.5 * 0 * J - B, -4 * 0.5 * 1 * J - B , -4 * 0.5 * 2 * J - B},
-        {-4 * -0.5 * -2 * J + B , -4 * -0.5 * -1 * J + B , -4 * -0.5 * 0 * J + B, -4 * -0.5 * 1 * J + B, -4 * -0.5 * 2 * J + B}
+        {(-2 * J )*(-1)*(-2) - B * (-1) , (-2*J) *(-1)*(-1) - B * (-1), (-2 * J )*(-1)*(0) - B * (-1), (-2 * J )*(-1)*(1) - B * (-1) , (-2 * J )*(-1)*(2) - B * (-1)},
+        {(-2 * J )*(1)*(-2) - B * (1) , (-2 * J )*(1)*(-1) - B * (1) , (-2 * J )*(1)*(0) - B * (1), (-2 * J )*(1)*(1) - B * (1), (-2 * J )*(1)*(2) - B * (1)}
     };
 
     for(int i = 0; i < 2; i++){
@@ -233,9 +233,9 @@ double calcEnergy(vector<double> state){
         }  
     }
     
-    wwE = wwE * J;
+    wwE = -wwE * J;
     
-    return wwE+B*BE;
+    return wwE-B*BE;
 }
 
 /*
@@ -291,9 +291,9 @@ vector<double> calc_Energy_Magnetization(vector<double> state){
 
         }  
     }
-    wwE = wwE * J;
+    wwE = -wwE * J;
 
-    double E = wwE + B*BE;
+    double E = wwE - B*BE;
 
     m = BE;
 
@@ -323,9 +323,9 @@ double getEnergyChange(int side, vector<double> state){
     }
 
     if(state[side]==0.5){
-        delta_E = -2*J*sum-B;
+        delta_E = 2*J*sum-B;
     }else{
-        delta_E = 2*J*sum+B;
+        delta_E = -2*J*sum+B;
     }
 
     return delta_E;
@@ -468,6 +468,8 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
     int stop = 20; // stops the simulation after being near eq 5 times in a row
     double energy = 0;
     double magnetization = 0;
+
+    int number_of_flips = 0;
     
     int conseq_near_eq = 0;
 
@@ -486,12 +488,12 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
 
             // Choose an initial side
 
-            int side = dist6(rng);
+            int side = dist6(rng); // checked, immer zufällige Spins
 
             if(isFlipped(side,state,beta)){
 
                 // Wert invertieren
-                
+
                 state[side]= -state[side];
             }
 
@@ -499,9 +501,7 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
         // Measure
         vector<double> results = calc_Energy_Magnetization(state);
 
-        /*
-
-        if(i%check_if_near_eq==0 && i > L*L){
+        if(i%check_if_near_eq==0 && number_of_flips > L*L){
 
             average_energy = energy/(i);
 
@@ -526,8 +526,6 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
             cout << "near eq: continuing with next beta" << endl;
             
             }
-        
-        */
         
             
         energy+=results[0];
