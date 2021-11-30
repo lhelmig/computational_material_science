@@ -13,7 +13,7 @@ namespace constants{
     const int L = 32;                //Latice size
     const double B = 0;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
-    const double beta = 0.2;          //parameter for temperature
+    const double beta = 5;          //parameter for temperature
     const double time_between_logs = 100;   
     vector<vector<double>> exparray;
 }
@@ -325,7 +325,7 @@ double getEnergyChange(int side, vector<double> state){
         delta_E = 2*J*sum+B;
     }
 
-    return abs(delta_E);
+    return delta_E;
 }
 
 /*
