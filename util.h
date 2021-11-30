@@ -10,7 +10,7 @@
 
 namespace constants{
 
-    const int L = 32;                //Latice size
+    const int L = 5;                //Latice size
     const double B = 0;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
     const double beta = 1;          //parameter for temperature
@@ -58,7 +58,7 @@ double flipSide(double side_value){
 }
 
 /*
-* creates the Ground state with every spin=0 (spin-down)
+* creates the Ground state with every spin=-0.5 (spin-down)
 * Args:
 * Returns: vector<int>
 */
