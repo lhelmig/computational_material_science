@@ -10,10 +10,10 @@
 
 namespace constants{
 
-    const int L = 5;                //Latice size
+    const int L = 32;                //Latice size
     const double B = 0;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
-    const double beta = 1;          //parameter for temperature
+    const double beta = 0.2;          //parameter for temperature
     const double time_between_logs = 100;   
     vector<vector<double>> exparray;
 }
@@ -32,8 +32,8 @@ void initialized_exparray(double beta){
     exparray={};      
     
     vector<vector<double>> delta_E{
-        {-4 * 0.5 * -2 , -4 * 0.5 * -1 , -4 * 0.5 * 0 , -4 * 0.5 * 1 , -4 * 0.5 * 2},
-        {-4 * -0.5 * -2 , -4 * -0.5 * -1 , -4 * -0.5 * 0 , -4 * -0.5 * 1 , -4 * -0.5 * 2}
+        {-4 * 0.5 * -2 * J - B , -4 * 0.5 * -1 * J - B, -4 * 0.5 * 0 * J - B, -4 * 0.5 * 1 * J - B , -4 * 0.5 * 2 * J - B},
+        {-4 * -0.5 * -2 * J + B , -4 * -0.5 * -1 * J + B , -4 * -0.5 * 0 * J + B, -4 * -0.5 * 1 * J + B, -4 * -0.5 * 2 * J + B}
     };
 
     for(int i = 0; i < 2; i++){
@@ -229,6 +229,7 @@ double calcEnergy(vector<double> state){
 
         }  
     }
+    
     wwE = wwE * J;
     
     return wwE+B*BE;
@@ -319,12 +320,12 @@ double getEnergyChange(int side, vector<double> state){
     }
 
     if(state[side]==0.5){
-        delta_E = -2*sum;
+        delta_E = -2*J*sum-B;
     }else{
-        delta_E = 2*sum;
+        delta_E = 2*J*sum+B;
     }
 
-    return delta_E;
+    return abs(delta_E);
 }
 
 /*
