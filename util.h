@@ -15,7 +15,7 @@ namespace constants{
     const double J = 1;             //Spin-spin-coppling
     const double beta = 5;          //parameter for temperature
     const double time_between_logs = 100;   
-    vector<vector<double>> exparray;
+    vector<vector<double> > exparray;
 }
 
 using namespace std;
@@ -31,7 +31,7 @@ void initialized_exparray(double beta){
 
     exparray={};      
     
-    vector<vector<double>> delta_E{
+    vector<vector<double> > delta_E{
         {-4 * 0.5 * -2 * J - B , -4 * 0.5 * -1 * J - B, -4 * 0.5 * 0 * J - B, -4 * 0.5 * 1 * J - B , -4 * 0.5 * 2 * J - B},
         {-4 * -0.5 * -2 * J + B , -4 * -0.5 * -1 * J + B , -4 * -0.5 * 0 * J + B, -4 * -0.5 * 1 * J + B, -4 * -0.5 * 2 * J + B}
     };
@@ -47,7 +47,10 @@ void initialized_exparray(double beta){
 
 }
 
-//Function to flip the spin
+/*
+* Die Funktion ist mega unnötig, also die macht das nur langsamer
+*
+*/
 double flipSide(double side_value){
 
     if(side_value== -0.5){
@@ -410,7 +413,10 @@ void algoMetropolis(vector<double> state, int N, int k){
             int side = dist6(rng);
 
             if(isFlipped(side,state)){
-                state[side]= flipSide(state[side]);
+
+                // Wert invertieren
+
+                state[side]= -state[side];
             }
 
         }
@@ -483,7 +489,10 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
             int side = dist6(rng);
 
             if(isFlipped(side,state,beta)){
-                state[side]= flipSide(state[side]);
+
+                // Wert invertieren
+                
+                state[side]= -state[side];
             }
 
         }
