@@ -22,10 +22,15 @@ int main(){
 
     vector<double> state = createState(1);
 
-    //calcProbDistrMagnetization(state,0.5,100000,L*L,precision);
-    //calcProbDistrMagnetization(state,0.88,100000,L*L,precision);
-    //calcProbDistrMagnetization(state,1,100000,L*L,precision);
-    //algoMetropolisTemperature(state,beta_min, beta_max, N, k, number_discrete_points, precision);
-    //algoMetropolis(state,N,k);
-    //algoMetropolisMultithread(state,0,2,100000,1);
+    // simple Metropolis simulation
+
+    algoMetropolis(state,N,k);
+
+    // Metropolis simulation for a temperature interval
+
+    algoMetropolisTemperature(state,beta_min, beta_max, N, k, number_discrete_points, precision);
+
+    // calculation of the probability distribution of the magnetization
+
+    calcProbDistrMagnetization(state,0.88,100000,L*L,precision);
 }

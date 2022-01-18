@@ -27,6 +27,14 @@ using namespace constants;
 Convention exparray[0 for spin up, 1 for spin down][numbers of neighbors with Spin Up]
 Initialize a vector for the differenze energy (exp(DeltaE*beta))
 */
+
+/**
+ * @brief initializes the exponential expression of the Metropolis algorithm to reduce computation time. array needs
+ * to be initialized for each new temperature
+ * 
+ * @param beta temperature beta for the simulation
+ */
+
 void initialized_exparray(double beta){
 
     exparray={};      
@@ -47,25 +55,11 @@ void initialized_exparray(double beta){
 
 }
 
-/*
-* Die Funktion ist mega unnötig, also die macht das nur langsamer
-*
-*/
-double flipSide(double side_value){
-
-    if(side_value== -0.5){
-        return 0.5;
-    }else{
-        return -0.5;
-    }
-}
-
-/*
-* creates the Ground state with every spin=-0.5 (spin-down)
-* Args:
-* Returns: vector<int>
-*/
-
+/**
+ * @brief Creates a ground state, vector of doubles, -0.5 is spin down
+ * 
+ * @return vector<double> 
+ */
 vector<double> createGroundState(){
 
     vector<double> ground_state(L*L);
@@ -76,11 +70,13 @@ vector<double> createGroundState(){
 
     return ground_state;
 }
-/*
-*Creates a random state with a specific composition
-*Args: p is a double between 0 and 1
-*Returns: a state as a vector<32>
-*/
+
+/**
+ * @brief Creates a system state as a 1d vector of doubles, mixed spin ups and downs
+ * 
+ * @param p occupation percentage of sites with spin up
+ * @return vector<double> state with random distribution of spin ups and downs meeting the occupation percentage p
+ */
 vector<double> createState(double p){
     
     vector<double> state = createGroundState();
@@ -95,11 +91,13 @@ vector<double> createState(double p){
 
     return state;
 }
-/*
-* visualizes the State by printing out
-*Args: State as a vector<int>
-*
-*/
+
+/**
+ * @brief visualizes a state by printing it to the console
+ * 
+ * @param state state that is visualized
+ */
+
 void visualizeState(vector<double> state){
     for(int i = 0;i < state.size();i++){
         cout<<state[i]+0.5;
@@ -108,51 +106,74 @@ void visualizeState(vector<double> state){
         }
     }
 }
-/*
-checks if side i is at the left border
-Args: position of side i in the vector
-*/
+
+/**
+ * @brief checks if a site is at the left border
+ * 
+ * @param i site to check
+ * @return true is in the left border
+ * @return false is not in the left border
+ */
+
 bool isLeftBorder(int i ){
     if(i%L==0){
         return true;
     }
     return false;
 }
-/*
-checks if side i is at the right border
-Args: position of side i in the vector
-*/
+
+/**
+ * @brief checks if a site is at the right border
+ * 
+ * @param i site to check
+ * @return true is in the right border
+ * @return false is not in the right border
+ */
+
 bool isRightBorder(int i ){
     if((i+1)%L==0){
         return true;
     }
     return false;
 }
-/*
-checks if side i is at the upper border
-Args: position of side i in the vector
-*/
+
+/**
+ * @brief checks if a site is at the upper border
+ * 
+ * @param i site to check
+ * @return true is in the upper border
+ * @return false is not in the upper border
+ */
+
 bool isUpperBorder(int i){
     if(i<L){
         return true;
     }
     return false;
 }
-/*
-checks if side i is at the lower border
-Args: position of side i in the vector
-*/
+
+/**
+ * @brief checks if a site is at the lower border
+ * 
+ * @param i site to check
+ * @return true is in the lower border
+ * @return false is not in the lower border
+ */
+
 bool isLowerBorder(int i){
     if(L*(L-1)<=i && i<L*L){
         return true;
     }
     return false;
 }
-/*
-Determines the adjacent sides of a side i
-Args: Side i at position i in the vector
-Returns: indices of the four adjacent sides
-*/
+
+/**
+ * @brief Determines the adjacent sides of a side i, because the square lattice is represented as a 1d array
+ * 
+ * @param i site to calculate the neighbours
+ * @return vector<int> array of adjacent sites in the lattice
+ */
+
 vector<int> adjacentSides(int i){
     
     vector<int> adjacents;
@@ -183,7 +204,15 @@ vector<int> adjacentSides(int i){
 
     return adjacents;
 }
-//count the adjacent spin up's for a side
+
+/**
+ * @brief count the number of adjacent (top, bottom, left, right) spin ups for a site
+ * 
+ * @param side specific site
+ * @param state state to check the adjacent sites
+ * @return int number of spin ups (min = 0, max = 4)
+ */
+
 int countAdjacentSpinUps(int side, vector<double> state){
 
     vector<int> adjacent = adjacentSides(side);
@@ -199,15 +228,13 @@ int countAdjacentSpinUps(int side, vector<double> state){
     return k;
 }
 
-/*
-Calculate the energy of the system using the Hamilton function
+/**
+ * @brief Calculates the energy of the system using the Hamiltonian
+ * 
+ * @param state state that the energy is calculated for
+ * @return double returns the energy of the state
+ */
 
-Energie: E= J [m_si * m_sj + m_si * m_sk ......]
-hbar=1 ;
-Args: state as a vector<int>
-Returns the Energie of the whole system
-
-*/
 double calcEnergy(vector<double> state){
 
     // Wechselwirkungsenergie der Spins
@@ -238,12 +265,13 @@ double calcEnergy(vector<double> state){
     return wwE-B*BE;
 }
 
-/*
-Calculate the magnetization of the system using the Hamilton function
-Args: state as a vector<int>
-Returns the magnetization of the whole system
+/**
+ * @brief Calculates the magnetization of the system using the Hamiltonian
+ * 
+ * @param state state that the magnetization is calculated for
+ * @return double magnetization of the state
+ */
 
-*/
 double calcMagnetization(vector<double> state){
 
      // Magnetisierung
@@ -259,10 +287,13 @@ double calcMagnetization(vector<double> state){
     return m;
 }
 
-/*
-Combined function to reduce runtime
+/**
+ * @brief calculates the energy and magnetization of a state, combined
+ * 
+ * @param state state that the energy and magnetization is calculated for
+ * @return vector<double> returns at position 0 the energy and at position 1 the magnetization
+ */
 
-*/
 vector<double> calc_Energy_Magnetization(vector<double> state){
 
     // Magnetisierung
@@ -303,9 +334,11 @@ vector<double> calc_Energy_Magnetization(vector<double> state){
 }
 
 /**
- calculates the energy change when one side is flipped
- Args: side to be flipped as an integer, current state as a vector
- Returns the energy change as a double 
+ * @brief calculates the energy change when one site is flipped
+ * 
+ * @param side position of the spin that is potentially flipped
+ * @param state specific state to check for
+ * @return double energy change that results from a spin flip for the state
  */
 
 double getEnergyChange(int side, vector<double> state){
@@ -331,11 +364,15 @@ double getEnergyChange(int side, vector<double> state){
     return delta_E;
 }
 
-/*
-determines if the spin on a side is flipped or not
-Args: index of side as an integer, state as a vector
-Returns a boolean: true when the spin is flipped and false if not
-*/
+/**
+ * @brief determines if the flip attempt of a spin at a position is successful
+ * 
+ * @param side position of the spin in the lattice (from 0 to L^2)
+ * @param state specific state to check
+ * @return true the spin is flipped
+ * @return false the spin remains unflipped
+ */
+
 bool isFlipped(int side, vector<double> state){
     
     double delta_E = getEnergyChange(side, state);
@@ -354,11 +391,15 @@ bool isFlipped(int side, vector<double> state){
 
 }
 
-/*
-determines if the spin on a side is flipped or not
-Args: index of side as an integer, state as a vector
-Returns a boolean: true when the spin is flipped and false if not
-*/
+/**
+ * @brief determines if the flip attempt of a spin at a position is successful, shorter calculation
+ * 
+ * @param side position of the spin in the lattice (from 0 to L^2)
+ * @param state specific state to check
+ * @param beta temperature
+ * @return true the spin is flipped
+ * @return false the spin remains unflipped
+ */
 
 bool isFlipped(int side, vector<double> state, double beta){
 
@@ -386,11 +427,14 @@ bool isFlipped(int side, vector<double> state, double beta){
 
 }
 
-/*
+/**
+ * @brief Simulation of the system for a fixed temperature beta, uses the original Metropolis algorithm, writes the result to a file
+ * 
+ * @param state the simulation starts with this state. Vector of doubles with size 1024
+ * @param N number of measurements
+ * @param k number of attempted spin flips between each measurement
+ */
 
-
-
-*/
 void algoMetropolis(vector<double> state, int N, int k){
 
     vector<double> energy;
@@ -455,12 +499,17 @@ void algoMetropolis(vector<double> state, int N, int k){
     //dumpStates(states,B,J,constants::beta);
 }
 
-
-/*
-
-
-
-*/
+/**
+ * @brief Uses the original Metropolis algorithm to simulate the Ising-Model, stops simulation when the energy after a specific amount of
+spin flips and when the precision is met
+ * 
+ * @param state the simulation starts with this state. Vector of doubles with size 1024
+ * @param beta temperature of the simulation
+ * @param N number of measurements
+ * @param k number of attempted spin flips between each measurement
+ * @param precision precision of the energy, simulation is stopped when the goal is reached
+ * @return vector<double> returns an array where position 0 holds the energy and position 1 the magnetization
+ */
 
 vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, int N, int k, double precision){
 
@@ -539,6 +588,18 @@ vector<double> algoMetropolisDirectAveraging(vector<double> state, double beta, 
 
     return result;
 }
+/**
+ * @brief calculates the average magnetization and energy for a temperature interval, uses the Metropolis algorithm, writes 
+ * the result to a file
+ * 
+ * @param state the simulation starts with this state. Vector of doubles with size 1024
+ * @param beta_min lower bound of the temperature interval
+ * @param beta_max upper bound of the temperature interval
+ * @param N number of measurements
+ * @param k number of attempted spin flips between each measurement
+ * @param number_discrete_points number of datapoints in the interval
+ * @param precision  precision of the energy, simulation is stopped when the goal is reached
+ */
 
 void algoMetropolisTemperature(vector<double> state,double beta_min, double beta_max, int N, int k, int number_discrete_points, double precision){
 
@@ -564,7 +625,15 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
     dump_average_Energy_Magnetization(interval_beta,average_energy,average_magnetization,constants::B,constants::J);
 
 }
-
+/**
+ * @brief Calculates the probability distribution of the magnetization for a fixed beta
+ * 
+ * @param state simulation starts with this. Vector of double with size 1024
+ * @param beta inverse temperature of the simulation
+ * @param N number of measurements
+ * @param k attempted spin flips between each measurements
+ * @param precision precision of the energy, simulation is stopped when the goal is reached
+ */
 void calcProbDistrMagnetization(vector<double> state, double beta, int N, int k, double precision){
 
     int check_if_near_eq = 10; // nach 10 lines überprüfen ob in der Nähe des Eq
@@ -596,7 +665,7 @@ void calcProbDistrMagnetization(vector<double> state, double beta, int N, int k,
             int side = dist6(rng);
 
             if(isFlipped(side,state,beta)){
-                state[side]= flipSide(state[side]);
+                state[side]= -state[side];
             }
 
         }
@@ -614,70 +683,3 @@ void calcProbDistrMagnetization(vector<double> state, double beta, int N, int k,
 
     dump_Prob_Distr(prob_distr,B,J,beta,total_number_measurements);
 }
-
-/*
-
-Multithread macht noch Probleme ^^
-
-void algoMetropolisTemperatureMultithread(vector<double> state,double beta_min, double beta_max, int N, int k, double precision, string additional_identifier){
-
-    int number_discrete_points = 100;
-
-    double delta_beta = (beta_max-beta_min)/number_discrete_points;
-
-    vector<double> interval_beta;
-    vector<double> average_energy;
-    vector<double> average_magnetization;
-
-    for(int i = 0; i < number_discrete_points; i++){
-
-        double actual_beta = beta_min + i * delta_beta;
-
-        vector<double> result = algoMetropolisDirectAveraging(state,actual_beta,N,k, precision);
-
-        cout << i << "/" << number_discrete_points << endl;
-
-        interval_beta.push_back(actual_beta);
-        average_energy.push_back(result[0]);
-        average_magnetization.push_back(result[1]);
-    }
-
-    dump_average_Energy_MagnetizationMultithread(interval_beta,average_energy,average_magnetization,constants::B,constants::J,additional_identifier);
-
-}
-
-void algoMetropolisMultithread(vector<double> state,double beta_min, double beta_max, int N, int k){
-
-    const auto processor_count = std::thread::hardware_concurrency();
-
-    cout << processor_count << endl;
-
-    int max_processor_count = 6;
-
-    int number_threads = 0;
-
-    if(((int)processor_count)<max_processor_count){
-
-        max_processor_count=(int)processor_count;
-
-    }
-
-    double beta_diff = (beta_max-beta_min)/(max_processor_count);
-
-    vector<thread> threads(max_processor_count);
-
-    for(int i = 0; i < max_processor_count;i++){
-
-        string name = "thread" + to_string(i);
-
-        double thread_beta_min = beta_min + i*beta_diff;
-        double thread_beta_max = beta_min + (i+1)*beta_diff;
-
-        threads[i]= thread(algoMetropolisTemperatureMultithread,state,thread_beta_min,thread_beta_max,N,k,name);
-    }
-
-    for (auto& th : threads) {
-        th.join();
-    }
-}
-*/
