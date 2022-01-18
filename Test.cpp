@@ -222,8 +222,8 @@ int main(){
     //testAdjacentSides();
 
     testEnergyChange();
-    testFlipping();
-    testExponentialArray();
+    //testFlipping();
+    //testExponentialArray();
 
     return 0;
 }

@@ -2,6 +2,7 @@
 #include<fstream>
 #include<vector>
 #include<string>
+#include <map>
 
 namespace constants{
     char name[]="single_state.txt";
@@ -154,3 +155,19 @@ void dump_average_Energy_MagnetizationMultithread(vector<double> beta,vector<dou
 
     }
 }
+void dump_Prob_Distr(int prob_distr[],double B, double J, double beta, int total_number_measurements){
+
+    string name = "prob_distr_magnetization_N="+ to_string(total_number_measurements)+ "_beta="+ to_string(beta) + "_B=" + to_string(B) + "_J=" + to_string(J) + ".txt";
+
+    ofstream log(name, ios_base::app | ios_base::out);
+
+    for(int i =-512;i<=512;i++){
+
+        cout << "this is " << i << "\t" << prob_distr[i+512] <<endl;
+
+        log << i << "\t" << float(prob_distr[i+512])/float(total_number_measurements) << endl;
+        
+    }
+}
+
+

@@ -11,7 +11,7 @@
 namespace constants{
 
     const int L = 32;                //Latice size
-    const double B = 0.5;               //Magneticfield constant    
+    const double B = 0;               //Magneticfield constant    
     const double J = 1;             //Spin-spin-coppling
     const double beta = 5;          //parameter for temperature
     const double time_between_logs = 100;   
@@ -564,6 +564,57 @@ void algoMetropolisTemperature(vector<double> state,double beta_min, double beta
     dump_average_Energy_Magnetization(interval_beta,average_energy,average_magnetization,constants::B,constants::J);
 
 }
+
+void calcProbDistrMagnetization(vector<double> state, double beta, int N, int k, double precision){
+
+    int check_if_near_eq = 10; // nach 10 lines überprüfen ob in der Nähe des Eq
+    int stop = 20; // stops the simulation after being near eq 5 times in a row
+    double energy = 0;
+    double magnetization = 0;
+    
+    int conseq_near_eq = 0;
+
+    double average_energy = 0;
+
+    bool near_eq = false;
+    int total_number_measurements = 0;
+
+    int prob_distr[1025]= {0};
+     
+    random_device dev;
+    mt19937 rng(dev());
+    uniform_int_distribution<mt19937::result_type> dist6(0,L*L-1);
+    initialized_exparray(beta);
+
+    for(int i = 0; i < N ;i++){
+
+
+        for(int j = 0; j < k; j++){
+
+            // Choose an initial side
+
+            int side = dist6(rng);
+
+            if(isFlipped(side,state,beta)){
+                state[side]= flipSide(state[side]);
+            }
+
+        }
+        // Measure
+        vector<double> results = calc_Energy_Magnetization(state);
+        
+        if(i > L*L){
+
+            total_number_measurements += 1;
+            int index = results[1]+512;
+            prob_distr[index]=prob_distr[index]+1;
+        }
+        
+    }
+
+    dump_Prob_Distr(prob_distr,B,J,beta,total_number_measurements);
+}
+
 /*
 
 Multithread macht noch Probleme ^^
